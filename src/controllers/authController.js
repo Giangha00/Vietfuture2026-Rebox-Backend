@@ -9,6 +9,7 @@ function sanitizeUser(userDoc) {
     phone: userDoc.phone,
     role: userDoc.role,
     avatarUrl: userDoc.avatarUrl,
+    bio: userDoc.bio || "",
     createdAt: userDoc.createdAt,
   };
 }
@@ -82,4 +83,61 @@ async function me(req, res) {
   });
 }
 
-module.exports = { register, login, me };
+async function updateMe(req, res) {
+  try {
+    const { fullName, phone, bio, avatarUrl, email } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (fullName !== undefined) {
+      const nextName = String(fullName || "").trim();
+      if (!nextName) {
+        return res.status(400).json({ message: "fullName cannot be empty." });
+      }
+      user.fullName = nextName;
+    }
+
+    if (phone !== undefined) {
+      user.phone = String(phone || "").trim();
+    }
+
+    if (bio !== undefined) {
+      user.bio = String(bio || "").trim().slice(0, 280);
+    }
+
+    if (avatarUrl !== undefined) {
+      user.avatarUrl = String(avatarUrl || "").trim();
+    }
+
+    if (email !== undefined) {
+      const nextEmail = String(email || "").trim().toLowerCase();
+      if (!nextEmail) {
+        return res.status(400).json({ message: "email cannot be empty." });
+      }
+      if (nextEmail !== user.email) {
+        const taken = await User.findOne({ email: nextEmail });
+        if (taken) {
+          return res.status(409).json({ message: "Email already exists." });
+        }
+        user.email = nextEmail;
+      }
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile updated.",
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to update profile.",
+      error: error.message,
+    });
+  }
+}
+
+module.exports = { register, login, me, updateMe };
