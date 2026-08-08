@@ -1,0 +1,70 @@
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+<div class="mb-3">
+  <a href="/admin/products?moderation=pending" class="btn btn-warning btn-sm mr-1">
+    Pending review <% if (pendingCount) { %><span class="badge badge-light"><%= pendingCount %></span><% } %>
+  </a>
+  <a href="/admin/products?moderation=approved" class="btn btn-success btn-sm mr-1">Approved</a>
+  <a href="/admin/products?moderation=rejected" class="btn btn-danger btn-sm mr-1">Rejected</a>
+  <a href="/admin/products" class="btn btn-default btn-sm">All</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form class="form-inline" method="get" action="/admin/products">
+      <input type="hidden" name="moderation" value="<%= moderation || '' %>">
+      <input type="text" name="q" value="<%= q || '' %>" class="form-control mr-2" placeholder="Search products...">
+      <button class="btn btn-default mr-2">Search</button>
+      <a href="/admin/products/new" class="btn btn-primary">Create product</a>
+    </form>
+  </div>
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover text-nowrap">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Price</th>
+          <th>Seller</th>
+          <th>Category</th>
+          <th>Moderation</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% products.forEach(function(product) { %>
+          <tr>
+            <td>
+              <a href="/admin/products/<%= product._id %>/review" class="font-weight-bold">
+                <%= product.title %>
+              </a>
+              <% if (product.moderationStatus === 'rejected' && product.rejectionReason) { %>
+                <div class="text-danger text-wrap" style="max-width:260px;white-space:normal;"><small><%= product.rejectionReason %></small></div>
+              <% } %>
+            </td>
+            <td><%= formatMoney(product.price) %></td>
+            <td><%= product.seller ? product.seller.fullName : '—' %></td>
+            <td><%= product.category ? product.category.name : '—' %></td>
+            <td>
+              <% const mod = product.moderationStatus || 'pending'; %>
+              <span class="badge badge-<%= mod === 'approved' ? 'success' : (mod === 'rejected' ? 'danger' : 'warning') %>">
+                <%= mod %>
+              </span>
+            </td>
+            <td><span class="badge badge-secondary"><%= product.status %></span></td>
+            <td class="text-right" style="min-width:220px;">
+              <a class="btn btn-sm <%= mod === 'pending' ? 'btn-warning' : 'btn-outline-info' %>" href="/admin/products/<%= product._id %>/review">
+                <i class="fas fa-eye mr-1"></i> Review
+              </a>
+              <a class="btn btn-sm btn-outline-primary" href="/admin/products/<%= product._id %>/edit">Edit</a>
+              <form action="/admin/products/<%= product._id %>/delete" method="post" class="d-inline" onsubmit="return confirm('Delete this product?')">
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

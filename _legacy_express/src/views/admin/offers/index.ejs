@@ -1,0 +1,43 @@
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover text-nowrap">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Buyer</th>
+          <th>Offer</th>
+          <th>Status</th>
+          <th>Message</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% offers.forEach(function(offer) { %>
+          <tr>
+            <td><%= offer.product ? offer.product.title : '—' %></td>
+            <td><%= offer.buyer ? offer.buyer.fullName : '—' %></td>
+            <td><%= formatMoney(offer.offerPrice) %></td>
+            <td>
+              <form method="post" action="/admin/offers/<%= offer._id %>/status" class="form-inline">
+                <select name="status" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                  <% ['pending','accepted','rejected','cancelled'].forEach(function(s) { %>
+                    <option value="<%= s %>" <%= offer.status === s ? 'selected' : '' %>><%= s %></option>
+                  <% }) %>
+                </select>
+              </form>
+            </td>
+            <td><%= offer.message || '—' %></td>
+            <td class="text-right">
+              <form action="/admin/offers/<%= offer._id %>/delete" method="post" class="d-inline" onsubmit="return confirm('Delete this offer?')">
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

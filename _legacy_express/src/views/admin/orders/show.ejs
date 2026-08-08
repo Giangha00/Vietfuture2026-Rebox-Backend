@@ -1,0 +1,109 @@
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">Order <%= order._id %></h3>
+      </div>
+      <div class="card-body">
+        <p><strong>Status:</strong> <span class="badge badge-info"><%= order.status %></span></p>
+        <p><strong>Payment:</strong> <%= order.paymentStatus %> · <strong>Escrow:</strong> <%= order.escrowStatus %></p>
+        <p><strong>Total:</strong> <%= formatMoney(order.totalAmount) %>
+          (fee <%= formatMoney(order.platformFee) %> · seller <%= formatMoney(order.sellerPayout) %>)</p>
+        <p><strong>Buyer:</strong> <%= order.buyer ? order.buyer.fullName + ' · ' + order.buyer.email : '—' %></p>
+        <p><strong>Shipper:</strong> <%= order.shipper ? order.shipper.fullName + ' · ' + order.shipper.email : 'Unassigned' %></p>
+        <p><strong>PayPal order:</strong> <code><%= order.paypalOrderId || '—' %></code></p>
+        <p><strong>Note:</strong> <%= order.note || '—' %></p>
+
+        <h5 class="mt-4">Items</h5>
+        <ul>
+          <% (order.items || []).forEach(function(item) { %>
+            <li>
+              <%= item.title %> — <%= formatMoney(item.price) %>
+              (seller: <%= item.seller ? item.seller.fullName : '—' %>)
+            </li>
+          <% }) %>
+        </ul>
+
+        <h5 class="mt-4">Delivery</h5>
+        <pre class="bg-light p-2"><%= JSON.stringify(order.deliveryAddress || {}, null, 2) %></pre>
+
+        <h5 class="mt-4">Pickup</h5>
+        <pre class="bg-light p-2"><%= JSON.stringify(order.pickupAddress || {}, null, 2) %></pre>
+
+        <% if (order.dispute && order.dispute.reason) { %>
+          <h5 class="mt-4 text-danger">Dispute</h5>
+          <p><%= order.dispute.reason %></p>
+          <p class="text-muted">Opened: <%= order.dispute.createdAt ? new Date(order.dispute.createdAt).toLocaleString() : '—' %></p>
+        <% } %>
+
+        <h5 class="mt-4">Timeline</h5>
+        <ul class="list-unstyled">
+          <% (order.timeline || []).slice().reverse().forEach(function(ev) { %>
+            <li class="mb-2">
+              <span class="badge badge-secondary"><%= ev.status %></span>
+              <%= ev.note || '' %>
+              <small class="text-muted"><%= ev.at ? new Date(ev.at).toLocaleString() : '' %></small>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+      <div class="card-footer">
+        <a href="/admin/orders" class="btn btn-default">Back</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-outline card-success">
+      <div class="card-header"><h3 class="card-title">Assign shipper</h3></div>
+      <form method="post" action="/admin/orders/<%= order._id %>/assign-shipper">
+        <div class="card-body">
+          <div class="form-group">
+            <label>Shipper</label>
+            <select name="shipperId" class="form-control" required>
+              <option value="">Select…</option>
+              <% shippers.forEach(function(s) { %>
+                <option value="<%= s._id %>" <%= order.shipper && String(order.shipper._id) === String(s._id) ? 'selected' : '' %>>
+                  <%= s.fullName %> (<%= s.email %>)
+                </option>
+              <% }) %>
+            </select>
+            <% if (!shippers.length) { %>
+              <small class="text-muted">Create a user with role <code>shipper</code> first.</small>
+            <% } %>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-success btn-block" <%= shippers.length ? '' : 'disabled' %>>Assign</button>
+        </div>
+      </form>
+    </div>
+
+    <% if (order.status === 'disputed') { %>
+      <div class="card card-outline card-danger">
+        <div class="card-header"><h3 class="card-title">Resolve dispute</h3></div>
+        <form method="post" action="/admin/orders/<%= order._id %>/resolve-dispute">
+          <div class="card-body">
+            <div class="form-group">
+              <label>Outcome</label>
+              <select name="resolutionStatus" class="form-control" required>
+                <option value="completed">Release to seller (completed)</option>
+                <option value="refunded">Refund buyer (cancelled)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Note</label>
+              <textarea name="resolution" class="form-control" rows="3" required minlength="5" placeholder="Explain the resolution..."></textarea>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button type="submit" class="btn btn-danger btn-block">Resolve</button>
+          </div>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</div>

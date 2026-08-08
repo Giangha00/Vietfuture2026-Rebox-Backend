@@ -1,0 +1,35 @@
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+
+<div class="card">
+  <div class="card-header">
+    <a href="/admin/categories/new" class="btn btn-primary">Create category</a>
+  </div>
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover text-nowrap">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Icon</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% categories.forEach(function(category) { %>
+          <tr>
+            <td><%= category.name %></td>
+            <td><%= category.slug %></td>
+            <td><%= category.icon || '—' %></td>
+            <td class="text-right">
+              <a class="btn btn-sm btn-outline-primary" href="/admin/categories/<%= category._id %>/edit">Edit</a>
+              <form action="/admin/categories/<%= category._id %>/delete" method="post" class="d-inline" onsubmit="return confirm('Delete this category?')">
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,191 @@
+<% if (success) { %><div class="alert alert-success"><i class="fas fa-check-circle mr-2"></i><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-2"></i><%= error %></div><% } %>
+
+<% const moderation = product.moderationStatus || 'pending'; %>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex align-items-center">
+        <h3 class="card-title font-weight-bold">Listing content</h3>
+        <span class="badge badge-<%= moderation === 'approved' ? 'success' : (moderation === 'rejected' ? 'danger' : 'warning') %> ml-auto px-3 py-2">
+          <%= moderation.toUpperCase() %>
+        </span>
+      </div>
+      <div class="card-body">
+        <% if (product.images && product.images.length) { %>
+          <div class="text-center rounded bg-light mb-3 p-2" style="min-height: 420px;">
+            <img
+              id="review-main-image"
+              src="<%= product.images[0] %>"
+              alt="<%= product.title %>"
+              class="img-fluid rounded"
+              style="max-height: 560px; width: 100%; object-fit: contain;"
+            >
+          </div>
+          <div class="d-flex flex-wrap mb-4" style="gap: 10px;">
+            <% product.images.forEach(function(image, index) { %>
+              <button
+                type="button"
+                class="btn p-0 border review-thumbnail <%= index === 0 ? 'border-primary' : '' %>"
+                data-image="<%= image %>"
+                style="width: 92px; height: 76px; overflow: hidden;"
+              >
+                <img src="<%= image %>" alt="Product image <%= index + 1 %>" style="width: 100%; height: 100%; object-fit: cover;">
+              </button>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="alert alert-warning">
+            <i class="fas fa-image mr-2"></i>This listing has no product images.
+          </div>
+        <% } %>
+
+        <h2 class="h4 font-weight-bold mb-1"><%= product.title %></h2>
+        <div class="h3 text-primary font-weight-bold mb-3"><%= formatMoney(product.price) %></div>
+
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <small class="text-muted d-block">Condition</small>
+            <strong><%= product.condition %></strong>
+          </div>
+          <div class="col-md-4">
+            <small class="text-muted d-block">Category</small>
+            <strong><%= product.category ? product.category.name : '—' %></strong>
+          </div>
+          <div class="col-md-4">
+            <small class="text-muted d-block">Listing status</small>
+            <strong><%= product.status %></strong>
+          </div>
+        </div>
+
+        <h5 class="font-weight-bold">Description</h5>
+        <div class="border rounded bg-light p-3" style="white-space: pre-wrap;"><%= product.description %></div>
+
+        <% if (moderation === 'rejected' && product.rejectionReason) { %>
+          <div class="alert alert-danger mt-4 mb-0">
+            <strong>Previous rejection reason:</strong><br>
+            <%= product.rejectionReason %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card card-outline card-primary">
+      <div class="card-header">
+        <h3 class="card-title font-weight-bold">Review decision</h3>
+      </div>
+      <div class="card-body">
+        <% if (moderation === 'pending') { %>
+          <p class="text-muted">
+            Check all photos, description and seller information before making a decision.
+          </p>
+          <form action="/admin/products/<%= product._id %>/approve" method="post" class="mb-3">
+            <div class="custom-control custom-checkbox mb-3">
+              <input type="checkbox" class="custom-control-input" id="isVerified" name="isVerified">
+              <label class="custom-control-label" for="isVerified">
+                Verified product — enable Instant Checkout
+              </label>
+            </div>
+            <button type="submit" class="btn btn-success btn-block" onclick="return confirm('Approve and publish this product?')">
+              <i class="fas fa-check mr-2"></i>Approve & publish
+            </button>
+          </form>
+
+          <hr>
+
+          <form action="/admin/products/<%= product._id %>/reject" method="post">
+            <div class="form-group">
+              <label for="rejectionReason">Reason for rejection <span class="text-danger">*</span></label>
+              <textarea
+                id="rejectionReason"
+                name="rejectionReason"
+                class="form-control"
+                rows="5"
+                required
+                minlength="5"
+                placeholder="Explain clearly what the seller must fix, e.g. blurry photos, missing product details, prohibited item..."
+              ></textarea>
+              <small class="form-text text-muted">This reason will be sent to the seller via notification.</small>
+            </div>
+            <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Reject this product and notify the seller?')">
+              <i class="fas fa-times mr-2"></i>Reject & notify seller
+            </button>
+          </form>
+        <% } else { %>
+          <div class="alert alert-<%= moderation === 'approved' ? 'success' : 'danger' %>">
+            This product has been <strong><%= moderation %></strong>.
+          </div>
+          <% if (product.moderatedAt) { %>
+            <dl class="mb-0">
+              <dt>Reviewed at</dt>
+              <dd><%= product.moderatedAt.toLocaleString() %></dd>
+              <dt>Reviewed by</dt>
+              <dd><%= product.moderatedBy ? product.moderatedBy.fullName : 'Admin' %></dd>
+            </dl>
+          <% } %>
+        <% } %>
+      </div>
+      <div class="card-footer">
+        <a href="/admin/products/<%= product._id %>/edit" class="btn btn-outline-primary btn-block">
+          <i class="fas fa-edit mr-2"></i>Edit product data
+        </a>
+        <a href="/admin/products?moderation=pending" class="btn btn-default btn-block">
+          Back to moderation queue
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title font-weight-bold">Seller</h3>
+      </div>
+      <div class="card-body">
+        <% if (product.seller) { %>
+          <h5 class="font-weight-bold mb-1"><%= product.seller.fullName %></h5>
+          <p class="text-muted mb-3"><%= product.seller.email %></p>
+          <dl class="mb-0">
+            <dt>Phone</dt>
+            <dd><%= product.seller.phone || '—' %></dd>
+            <dt>Member since</dt>
+            <dd><%= product.seller.createdAt ? product.seller.createdAt.toISOString().slice(0, 10) : '—' %></dd>
+          </dl>
+          <a href="/admin/users/<%= product.seller._id %>/edit" class="btn btn-sm btn-outline-secondary">
+            View seller account
+          </a>
+        <% } else { %>
+          <p class="text-muted mb-0">Seller not found.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title font-weight-bold">Drop-off station</h3>
+      </div>
+      <div class="card-body">
+        <% if (product.station) { %>
+          <strong><%= product.station.partnerName %> — Locker <%= product.station.lockerCode %></strong>
+          <p class="text-muted mb-0"><%= product.station.address %>, <%= product.station.city %></p>
+        <% } else { %>
+          <p class="text-muted mb-0">Station not found.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.review-thumbnail').forEach(function (button) {
+    button.addEventListener('click', function () {
+      const mainImage = document.getElementById('review-main-image');
+      if (mainImage) mainImage.src = button.dataset.image;
+      document.querySelectorAll('.review-thumbnail').forEach(function (item) {
+        item.classList.remove('border-primary');
+      });
+      button.classList.add('border-primary');
+    });
+  });
+</script>

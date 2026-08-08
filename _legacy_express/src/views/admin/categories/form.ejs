@@ -1,0 +1,26 @@
+<div class="card card-primary">
+  <div class="card-header">
+    <h3 class="card-title"><%= category && category._id ? 'Edit category' : 'Create category' %></h3>
+  </div>
+  <% if (error) { %><div class="alert alert-danger m-3"><%= error %></div><% } %>
+  <form method="post" action="<%= category && category._id ? '/admin/categories/' + category._id : '/admin/categories' %>">
+    <div class="card-body">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" name="name" class="form-control" required minlength="2" value="<%= category ? (category.name || '') : '' %>">
+      </div>
+      <div class="form-group">
+        <label>Slug (optional)</label>
+        <input type="text" name="slug" class="form-control" pattern="[a-z0-9\-]*" title="Lowercase letters, numbers, and hyphens only" value="<%= category ? (category.slug || '') : '' %>">
+      </div>
+      <div class="form-group">
+        <label>Icon</label>
+        <input type="text" name="icon" class="form-control" value="<%= category ? (category.icon || '') : '' %>" placeholder="laptop, shirt, camera...">
+      </div>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="/admin/categories" class="btn btn-default">Cancel</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,64 @@
+<% 
+  function isActive(prefix) {
+    if (prefix === '/') return currentPath === '/' || currentPath === '';
+    return currentPath === prefix || currentPath.startsWith(prefix + '/');
+  }
+%>
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <a href="/admin" class="brand-link">
+    <span class="brand-text font-weight-light ml-3">ReBox Admin</span>
+  </a>
+  <div class="sidebar">
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="info">
+        <a href="#" class="d-block"><%= admin.fullName %></a>
+      </div>
+    </div>
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+        <li class="nav-item">
+          <a href="/admin" class="nav-link <%= isActive('/') ? 'active' : '' %>">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/users" class="nav-link <%= isActive('/users') ? 'active' : '' %>">
+            <i class="nav-icon fas fa-users"></i>
+            <p>Users</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/products" class="nav-link <%= isActive('/products') ? 'active' : '' %>">
+            <i class="nav-icon fas fa-box-open"></i>
+            <p>Products</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/categories" class="nav-link <%= isActive('/categories') ? 'active' : '' %>">
+            <i class="nav-icon fas fa-tags"></i>
+            <p>Categories</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/stations" class="nav-link <%= isActive('/stations') ? 'active' : '' %>">
+            <i class="nav-icon fas fa-map-marker-alt"></i>
+            <p>Stations</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/orders" class="nav-link <%= isActive('/orders') ? 'active' : '' %>">
+            <i class="nav-icon fas fa-receipt"></i>
+            <p>Orders</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin/offers" class="nav-link <%= isActive('/offers') ? 'active' : '' %>">
+            <i class="nav-icon fas fa-handshake"></i>
+            <p>Offers</p>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</aside>

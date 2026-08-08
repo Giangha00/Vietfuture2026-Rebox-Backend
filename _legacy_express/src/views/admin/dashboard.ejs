@@ -1,0 +1,164 @@
+<div class="row">
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3><%= stats.usersCount %></h3>
+        <p>Users</p>
+      </div>
+      <div class="icon"><i class="fas fa-users"></i></div>
+      <a href="/admin/users" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3><%= stats.productsCount %></h3>
+        <p>Products</p>
+      </div>
+      <div class="icon"><i class="fas fa-box-open"></i></div>
+      <a href="/admin/products" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3><%= stats.categoriesCount %></h3>
+        <p>Categories</p>
+      </div>
+      <div class="icon"><i class="fas fa-tags"></i></div>
+      <a href="/admin/categories" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3><%= stats.stationsCount %></h3>
+        <p>Stations</p>
+      </div>
+      <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+      <a href="/admin/stations" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-3 col-sm-6">
+    <div class="info-box">
+      <span class="info-box-icon bg-primary"><i class="fas fa-check-circle"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Verified listings</span>
+        <span class="info-box-number"><%= stats.verifiedProducts %></span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="info-box">
+      <span class="info-box-icon bg-success"><i class="fas fa-bolt"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Active listings</span>
+        <span class="info-box-number"><%= stats.activeProducts %></span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="info-box">
+      <span class="info-box-icon bg-secondary"><i class="fas fa-shopping-bag"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Sold</span>
+        <span class="info-box-number"><%= stats.soldProducts %></span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6">
+    <div class="info-box">
+      <span class="info-box-icon bg-info"><i class="fas fa-handshake"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Offers</span>
+        <span class="info-box-number"><%= stats.offersCount %></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card chart-card">
+      <div class="card-header border-0">
+        <h3 class="card-title">Growth — last 30 days</h3>
+      </div>
+      <div class="card-body">
+        <canvas id="growthChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card chart-card">
+      <div class="card-header border-0">
+        <h3 class="card-title">Products by category</h3>
+      </div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <canvas id="categoryChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header border-0">
+        <h3 class="card-title">Product status mix</h3>
+      </div>
+      <div class="card-body">
+        <canvas id="statusChart" height="180"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header border-0">
+        <h3 class="card-title">Recent users</h3>
+      </div>
+      <div class="card-body p-0">
+        <ul class="products-list product-list-in-card pl-2 pr-2">
+          <% recentUsers.forEach(function(user) { %>
+            <li class="item">
+              <div class="product-info ml-0">
+                <a href="/admin/users/<%= user._id %>/edit" class="product-title">
+                  <%= user.fullName %>
+                  <span class="badge badge-<%= user.role === 'admin' ? 'danger' : 'secondary' %> float-right"><%= user.role %></span>
+                </a>
+                <span class="product-description"><%= user.email %></span>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header border-0">
+        <h3 class="card-title">Recent products</h3>
+      </div>
+      <div class="card-body p-0">
+        <ul class="products-list product-list-in-card pl-2 pr-2">
+          <% recentProducts.forEach(function(product) { %>
+            <li class="item">
+              <div class="product-info ml-0">
+                <a href="/admin/products/<%= product._id %>/edit" class="product-title">
+                  <%= product.title %>
+                  <span class="badge badge-info float-right"><%= formatMoney(product.price) %></span>
+                </a>
+                <span class="product-description">
+                  <%= product.category ? product.category.name : '—' %> ·
+                  <%= product.seller ? product.seller.fullName : '—' %>
+                </span>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

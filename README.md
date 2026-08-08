@@ -1,82 +1,67 @@
-# Rebox Backend (Node.js + MongoDB)
+# ReBox Backend (Laravel + Filament)
 
-Backend API for Rebox project using Express, MongoDB (Mongoose), JWT authentication, and hashed passwords.
+Express/MongoDB backend has been replaced by **Laravel 13 + Filament 4 + MySQL**.
 
-## 1) Setup
+Legacy Node code is kept under [`_legacy_express/`](_legacy_express/) for reference only.
+
+## Requirements
+
+- PHP 8.2+
+- Composer
+- MySQL via **XAMPP** (database name: `rebox`)
+- Next.js frontend still expects API at `http://localhost:5001`
+
+## Setup (XAMPP)
+
+1. Start **Apache** + **MySQL** in XAMPP.
+2. Open phpMyAdmin (`http://localhost/phpmyadmin`) and confirm database `rebox` exists (or create it).
+3. Copy env and install:
 
 ```bash
-npm install
 cp .env.example .env
+php artisan key:generate
+composer install
+php artisan migrate --seed
+php artisan storage:link
 ```
 
-Update `.env`:
-
-- `MONGODB_URI`: use your MongoDB Compass/local URI, for example `mongodb://127.0.0.1:27017/rebox_db`
-- `JWT_SECRET`: any strong random secret
-
-## 2) Create database + sample data
+4. Run API + Filament on port **5001**:
 
 ```bash
-npm run seed
+php artisan serve --host=127.0.0.1 --port=5001
 ```
 
-This command creates collections and inserts sample docs:
+## URLs
 
-- `users`
-- `categories`
-- `stations`
-- `products`
-- `offers`
+| Surface | URL |
+|---------|-----|
+| API health | http://localhost:5001/api/health |
+| Filament admin | http://localhost:5001/admin |
+| Uploads | http://localhost:5001/storage/uploads/... |
 
-## 3) Run server
+Default admin (seeded):
+
+- Email: `admin@rebox.com`
+- Password: `Admin@123`
+
+Demo accounts (from full legacy seed):
+
+- Users: `marcus@rebox.com`, `buyer@rebox.com`, … / `Rebox@123`
+- Shipper: `shipper@rebox.com` / `Rebox@123`
+
+Seed includes **20 users**, **8 categories**, **6 stations**, **100 products**, **3 sample offers**.
 
 ```bash
-npm run dev
+php artisan db:seed
 ```
 
-Default server: `http://localhost:5000`
+## API compatibility
 
-## 4) Auth APIs
+JSON routes mirror the previous Express API under `/api/*` (auth, products, offers, orders, PayPal, notifications, uploads). JWT uses `Authorization: Bearer <token>` with payload `{ sub: userId }`. Responses include both `id` and `_id` for frontend compatibility.
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me` (Bearer token required)
+## Useful commands
 
-### Register body
-
-```json
-{
-  "fullName": "Your Name",
-  "email": "you@example.com",
-  "phone": "0900000000",
-  "password": "YourStrongPassword"
-}
-```
-
-### Login body
-
-```json
-{
-  "email": "you@example.com",
-  "password": "YourStrongPassword"
-}
-```
-
-## 5) Product APIs
-
-- `GET /api/products` (public)
-- `POST /api/products` (Bearer token required)
-
-### Create product body
-
-```json
-{
-  "title": "Product name",
-  "description": "Details...",
-  "price": 100,
-  "condition": "Good",
-  "images": ["https://..."],
-  "category": "<categoryObjectId>",
-  "station": "<stationObjectId>"
-}
+```bash
+php artisan migrate:fresh --seed
+php artisan filament:optimize
 ```
