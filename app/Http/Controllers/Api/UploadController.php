@@ -27,8 +27,8 @@ class UploadController extends Controller
             if (! str_starts_with((string) $file->getMimeType(), 'image/')) {
                 return response()->json(['message' => 'Only image files are allowed.'], 400);
             }
-            if ($file->getSize() > 5 * 1024 * 1024) {
-                return response()->json(['message' => 'Each image must be under 5MB.'], 400);
+            if ($file->getSize() > (int) (1.5 * 1024 * 1024)) {
+                return response()->json(['message' => 'Each image must be 1.5MB or smaller.'], 400);
             }
 
             $extension = $file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg';

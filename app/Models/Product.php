@@ -20,6 +20,7 @@ class Product extends Model
         'moderation_status',
         'rejection_reason',
         'moderation_notes',
+        'ai_meta',
         'moderated_at',
         'moderated_by',
         'seller_id',
@@ -35,6 +36,7 @@ class Product extends Model
             'price' => 'float',
             'images' => 'array',
             'attributes' => 'array',
+            'ai_meta' => 'array',
             'is_verified' => 'boolean',
             'accepts_offers' => 'boolean',
             'moderated_at' => 'datetime',
@@ -64,5 +66,10 @@ class Product extends Model
     public function offers(): HasMany
     {
         return $this->hasMany(Offer::class);
+    }
+
+    public function aiTrainingSamples(): HasMany
+    {
+        return $this->hasMany(AiTrainingSample::class);
     }
 }

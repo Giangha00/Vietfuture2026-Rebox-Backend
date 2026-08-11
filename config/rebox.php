@@ -23,4 +23,8 @@ return [
     ],
     'google_email' => env('GOOGLE_EMAIL', ''),
     'google_app_password' => preg_replace('/\s+/', '', (string) env('GOOGLE_APP_PASSWORD', '')),
+    'ai' => [
+        'url' => env('REBOX_AI_URL', 'http://127.0.0.1:8100'),
+        'timeout' => (int) env('REBOX_AI_TIMEOUT', 120),
+    ],
 ];

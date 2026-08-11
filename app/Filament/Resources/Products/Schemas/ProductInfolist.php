@@ -53,6 +53,71 @@ class ProductInfolist
                     ]),
                 ]),
 
+            Section::make('AI pre-check')
+                ->description('Assisted analysis from seller photos. Admin decision is still required.')
+                ->schema([
+                    Grid::make(2)->schema([
+                        TextEntry::make('ai_risk')
+                            ->label('AI risk')
+                            ->badge()
+                            ->getStateUsing(fn ($record): string => (string) (
+                                $record->ai_meta['risk_score']
+                                ?? $record->ai_meta['riskScore']
+                                ?? '—'
+                            ))
+                            ->color(fn (string $state): string => match ($state) {
+                                'low' => 'success',
+                                'medium' => 'warning',
+                                'high' => 'danger',
+                                default => 'gray',
+                            }),
+                        TextEntry::make('ai_model')
+                            ->label('Model')
+                            ->getStateUsing(fn ($record): string => (string) (
+                                $record->ai_meta['model']
+                                ?? $record->ai_meta['draft']['modelVersion']
+                                ?? '—'
+                            )),
+                        TextEntry::make('ai_flags')
+                            ->label('Flags')
+                            ->getStateUsing(function ($record): string {
+                                $flags = $record->ai_meta['flags']
+                                    ?? $record->ai_meta['draft']['flags']
+                                    ?? [];
+                                if (! is_array($flags) || $flags === []) {
+                                    return '—';
+                                }
+
+                                return implode(', ', array_map('strval', $flags));
+                            })
+                            ->columnSpanFull(),
+                        TextEntry::make('ai_notes')
+                            ->label('AI notes for admin')
+                            ->getStateUsing(fn ($record): string => (string) (
+                                $record->ai_meta['notes_for_admin']
+                                ?? $record->ai_meta['draft']['notesForAdmin']
+                                ?? '—'
+                            ))
+                            ->columnSpanFull()
+                            ->placeholder('—'),
+                        TextEntry::make('ai_confidence')
+                            ->label('Confidence')
+                            ->getStateUsing(function ($record): string {
+                                $value = $record->ai_meta['draft']['confidence']
+                                    ?? $record->ai_meta['confidence']
+                                    ?? null;
+
+                                return is_numeric($value) ? round(((float) $value) * 100).'%' : '—';
+                            }),
+                        TextEntry::make('ai_checked_at')
+                            ->label('AI checked at')
+                            ->getStateUsing(fn ($record): string => (string) (
+                                $record->ai_meta['checked_at'] ?? '—'
+                            )),
+                    ]),
+                ])
+                ->visible(fn ($record): bool => is_array($record->ai_meta) && $record->ai_meta !== []),
+
             Section::make('Moderation')
                 ->schema([
                     Grid::make(2)->schema([

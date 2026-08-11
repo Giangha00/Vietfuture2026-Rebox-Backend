@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AiListingDraftController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LookupController;
 use App\Http\Controllers\Api\NotificationController;
@@ -46,6 +47,7 @@ Route::middleware([JwtAuthenticate::class, RequireVerified::class])->group(funct
     Route::delete('products/{id}', [ProductController::class, 'destroy']);
 
     Route::post('uploads', [UploadController::class, 'store']);
+    Route::post('ai/listing-draft', [AiListingDraftController::class, 'store']);
 
     Route::get('offers/mine', [OfferController::class, 'mine']);
     Route::get('offers/selling', [OfferController::class, 'selling']);

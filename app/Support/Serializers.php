@@ -109,6 +109,7 @@ class Serializers
             'pickupLocation' => $seller['pickupLocation'] ?? '',
             'status' => $product->status,
             'acceptsOffers' => (bool) $product->accepts_offers,
+            'aiMeta' => $product->ai_meta,
             'createdAt' => optional($product->created_at)?->toISOString(),
             'updatedAt' => optional($product->updated_at)?->toISOString(),
         ]);

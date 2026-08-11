@@ -27,6 +27,12 @@ class ViewProduct extends ViewRecord
                         ->label('Review checklist notes')
                         ->helperText('Quick notes: photos OK, specs match, condition honest, accessories declared…')
                         ->rows(3)
+                        ->default(fn (): string => (string) (
+                            $this->record->ai_meta['notes_for_admin']
+                            ?? $this->record->ai_meta['draft']['notesForAdmin']
+                            ?? $this->record->moderation_notes
+                            ?? ''
+                        ))
                         ->placeholder('e.g. Photos clear · layout/Hz match · Good condition noted'),
                 ])
                 ->modalHeading('Approve this product?')
