@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Support;
 
+use App\Models\AiTrainingSample;
 use App\Models\Product;
 use App\Services\NotificationService;
 use Filament\Notifications\Notification;
@@ -26,6 +27,8 @@ class ProductModeration
             'moderated_at' => now(),
             'moderated_by' => Auth::id(),
         ]);
+
+        self::labelTrainingSample($product, 'approved');
 
         app(NotificationService::class)->createAndPush(
             (int) $product->seller_id,
@@ -58,6 +61,8 @@ class ProductModeration
             'moderated_at' => now(),
             'moderated_by' => Auth::id(),
         ]);
+
+        self::labelTrainingSample($product, 'rejected', $reason);
 
         app(NotificationService::class)->createAndPush(
             (int) $product->seller_id,
@@ -143,5 +148,20 @@ class ProductModeration
             ->title('Verified badge removed')
             ->success()
             ->send();
+    }
+
+    protected static function labelTrainingSample(
+        Product $product,
+        string $label,
+        ?string $rejectionReason = null
+    ): void {
+        AiTrainingSample::query()
+            ->where('product_id', $product->id)
+            ->orderByDesc('id')
+            ->limit(1)
+            ->update([
+                'admin_label' => $label,
+                'rejection_reason' => $rejectionReason,
+            ]);
     }
 }
