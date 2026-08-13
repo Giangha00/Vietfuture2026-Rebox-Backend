@@ -11,29 +11,11 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderAdminActions
 {
-    public const STATUS_OPTIONS = [
-        'pending_payment' => 'Pending payment',
-        'paid' => 'Paid (escrow held)',
-        'seller_confirmed' => 'Seller confirmed',
-        'pickup_assigned' => 'Pickup assigned',
-        'picked_up' => 'Picked up',
-        'out_for_delivery' => 'Out for delivery',
-        'delivered' => 'Delivered',
-        'completed' => 'Completed',
-        'cancelled' => 'Cancelled',
-        'disputed' => 'Disputed',
-    ];
+    /** @see OrderService::STATUS_OPTIONS */
+    public const STATUS_OPTIONS = OrderService::STATUS_OPTIONS;
 
-    public const FLOW = [
-        'pending_payment',
-        'paid',
-        'seller_confirmed',
-        'pickup_assigned',
-        'picked_up',
-        'out_for_delivery',
-        'delivered',
-        'completed',
-    ];
+    /** @see OrderService::FLOW */
+    public const FLOW = OrderService::FLOW;
 
     public static function updateStatus(Order $order, string $status, string $note = ''): void
     {
@@ -180,13 +162,6 @@ class OrderAdminActions
 
     public static function flowIndex(string $status): int
     {
-        $normalized = match ($status) {
-            'pending' => 'pending_payment',
-            'confirmed' => 'paid',
-            default => $status,
-        };
-        $idx = array_search($normalized, self::FLOW, true);
-
-        return $idx === false ? -1 : $idx;
+        return OrderService::flowIndex($status);
     }
 }

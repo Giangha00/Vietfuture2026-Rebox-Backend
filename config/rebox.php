@@ -27,4 +27,8 @@ return [
         'url' => env('REBOX_AI_URL', 'http://127.0.0.1:8100'),
         'timeout' => (int) env('REBOX_AI_TIMEOUT', 120),
     ],
+    'upload' => [
+        'max_files' => 8,
+        'max_bytes' => (int) (1.5 * 1024 * 1024),
+    ],
 ];
