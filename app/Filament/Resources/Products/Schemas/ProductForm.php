@@ -124,7 +124,7 @@ class ProductForm
                                     })
                                     ->all();
                             })
-                            ->helperText('Keys: layout, switch, connectivity, hot_swap, has_receiver, shape, weight_g, size_inch, refresh_hz, panel, resolution.'),
+                            ->helperText('Keys: layout, switch (or custom switch name), connectivity, hot_swap, shape, weight_g, max_dpi, polling_hz, buttons, size_inch, refresh_hz, panel, resolution.'),
                         Toggle::make('accepts_offers')->label('Accepts offers')->default(true),
                     ]),
                 ]),

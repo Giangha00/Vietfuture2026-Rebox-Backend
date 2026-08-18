@@ -17,6 +17,8 @@ class AiTrainingSample extends Model
         'admin_label',
         'rejection_reason',
         'model_version',
+        'source',
+        'exported_at',
     ];
 
     protected function casts(): array
@@ -25,6 +27,7 @@ class AiTrainingSample extends Model
             'image_urls' => 'array',
             'ai_draft' => 'array',
             'user_final' => 'array',
+            'exported_at' => 'datetime',
         ];
     }
 

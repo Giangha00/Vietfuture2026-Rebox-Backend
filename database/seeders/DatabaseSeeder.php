@@ -404,7 +404,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Logitech',
                 'basePrice' => 110,
-                'attributes' => ['connectivity' => 'wireless', 'has_receiver' => true, 'shape' => 'ambi', 'weight_g' => 63],
+                'attributes' => ['connectivity' => 'wireless', 'shape' => 'ambi', 'weight_g' => 63, 'max_dpi' => 25600, 'polling_hz' => '1000', 'buttons' => 5],
                 'images' => [$this->img('mouse-logitech-white.jpg')],
             ],
             [
@@ -412,7 +412,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Razer',
                 'basePrice' => 125,
-                'attributes' => ['connectivity' => 'wireless', 'has_receiver' => true, 'shape' => 'ambi', 'weight_g' => 58],
+                'attributes' => ['connectivity' => 'wireless', 'shape' => 'ambi', 'weight_g' => 58, 'max_dpi' => 30000, 'polling_hz' => '1000', 'buttons' => 5],
                 'images' => [$this->img('mouse-honeycomb.jpg')],
             ],
             [
@@ -420,7 +420,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Logitech',
                 'basePrice' => 48,
-                'attributes' => ['connectivity' => 'wired', 'has_receiver' => false, 'shape' => 'ergo', 'weight_g' => 121],
+                'attributes' => ['connectivity' => 'wired', 'shape' => 'ergo', 'weight_g' => 121, 'max_dpi' => 25600, 'polling_hz' => '1000', 'buttons' => 11],
                 'images' => [$this->img('mouse-logitech-g.jpg')],
             ],
             [
@@ -428,7 +428,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Pulsar',
                 'basePrice' => 89,
-                'attributes' => ['connectivity' => 'wireless', 'has_receiver' => true, 'shape' => 'ambi', 'weight_g' => 52],
+                'attributes' => ['connectivity' => 'wireless', 'shape' => 'ambi', 'weight_g' => 52, 'max_dpi' => 26000, 'polling_hz' => '1000', 'buttons' => 5],
                 'images' => [$this->img('mouse-honeycomb.jpg')],
             ],
             [
@@ -436,7 +436,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Lamzu',
                 'basePrice' => 99,
-                'attributes' => ['connectivity' => 'wireless', 'has_receiver' => true, 'shape' => 'ambi', 'weight_g' => 49],
+                'attributes' => ['connectivity' => 'wireless', 'shape' => 'ambi', 'weight_g' => 49, 'max_dpi' => 26000, 'polling_hz' => '1000', 'buttons' => 5],
                 'images' => [$this->img('mouse-rgb.jpg')],
             ],
             [
@@ -444,7 +444,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Razer',
                 'basePrice' => 72,
-                'attributes' => ['connectivity' => 'wired', 'has_receiver' => false, 'shape' => 'ergo', 'weight_g' => 59],
+                'attributes' => ['connectivity' => 'wired', 'shape' => 'ergo', 'weight_g' => 59, 'max_dpi' => 30000, 'polling_hz' => '8000', 'buttons' => 5],
                 'images' => [$this->img('mouse-rgb.jpg')],
             ],
             [
@@ -452,7 +452,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Logitech',
                 'basePrice' => 85,
-                'attributes' => ['connectivity' => 'wireless', 'has_receiver' => true, 'shape' => 'ergo', 'weight_g' => 141],
+                'attributes' => ['connectivity' => 'wireless', 'shape' => 'ergo', 'weight_g' => 141, 'max_dpi' => 8000, 'polling_hz' => '125', 'buttons' => 7],
                 'images' => [$this->img('mouse-logitech-g.jpg')],
             ],
             [
@@ -460,7 +460,7 @@ class DatabaseSeeder extends Seeder
                 'category' => 'mice',
                 'brand' => 'Zowie',
                 'basePrice' => 118,
-                'attributes' => ['connectivity' => 'wireless', 'has_receiver' => true, 'shape' => 'ergo', 'weight_g' => 77],
+                'attributes' => ['connectivity' => 'wireless', 'shape' => 'ergo', 'weight_g' => 77, 'max_dpi' => 3200, 'polling_hz' => '1000', 'buttons' => 5],
                 'images' => [$this->img('mouse-logitech-white.jpg')],
             ],
             [

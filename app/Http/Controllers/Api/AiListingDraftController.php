@@ -14,6 +14,11 @@ class AiListingDraftController extends Controller
 
     public function store(Request $request)
     {
+        // Qwen2-VL on MPS often needs 30–120s; PHP web SAPI default (30s) kills Guzzle mid-request.
+        $aiTimeout = max(60, (int) config('rebox.ai.timeout', 120));
+        @set_time_limit($aiTimeout + 30);
+        @ini_set('max_execution_time', (string) ($aiTimeout + 30));
+
         $user = $request->attributes->get('authUser');
         $key = 'ai-listing-draft:'.($user?->id ?? $request->ip());
         if (RateLimiter::tooManyAttempts($key, 10)) {

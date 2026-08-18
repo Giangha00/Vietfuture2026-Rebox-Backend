@@ -55,13 +55,16 @@ class ListingDraftService
         ];
 
         try {
-            $response = Http::timeout($timeout)
+            $response = Http::connectTimeout(10)
+                ->timeout($timeout)
                 ->acceptJson()
                 ->post($base.'/v1/listing-draft', $payload);
         } catch (\Throwable $e) {
             Log::warning('rebox-ai draft request failed', ['error' => $e->getMessage()]);
             throw new RuntimeException(
-                'AI service unreachable. Start rebox-ai on '.($base ?: 'REBOX_AI_URL').'.'
+                'AI service unreachable or timed out after '.$timeout.'s. '
+                .'Ensure rebox-ai is running on '.($base ?: 'REBOX_AI_URL')
+                .' (Qwen on MPS can take 30–90s on first request).'
             );
         }
 
@@ -185,8 +188,20 @@ class ListingDraftService
                 }
             } elseif ($type === 'number' && is_numeric($value)) {
                 $out[$key] = (int) round((float) $value);
-            } elseif ($type === 'select' && in_array((string) $value, $field['options'] ?? [], true)) {
-                $out[$key] = (string) $value;
+            } elseif ($type === 'text') {
+                $text = trim((string) $value);
+                $max = (int) ($field['max'] ?? 80);
+                if ($text !== '') {
+                    $out[$key] = mb_substr($text, 0, $max);
+                }
+            } elseif ($type === 'select') {
+                $text = trim((string) $value);
+                $options = $field['options'] ?? [];
+                if (in_array($text, $options, true) && ! (($field['allow_other'] ?? false) && $text === 'other')) {
+                    $out[$key] = $text;
+                } elseif (($field['allow_other'] ?? false) && $text !== '' && $text !== 'other') {
+                    $out[$key] = mb_substr($text, 0, (int) ($field['max'] ?? 80));
+                }
             }
         }
 
