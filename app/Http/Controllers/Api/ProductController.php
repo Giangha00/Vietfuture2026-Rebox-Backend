@@ -139,7 +139,7 @@ class ProductController extends Controller
             'moderation_notes' => $this->aiNotesForAdmin($request->input('aiMeta', $request->input('ai_meta'))),
         ]);
 
-        $this->recordTrainingSample($product, $user, $category->slug, $productAttributes);
+        $this->recordTrainingSample($product, $user, $category->slug, $productAttributes, 'user');
 
         $this->notifications->createAndPush(
             $user,
@@ -259,6 +259,12 @@ class ProductController extends Controller
         $product->save();
 
         if (! $onlyOffers) {
+            $product->loadMissing('category');
+            $slug = $product->category?->slug ?? 'keyboards';
+            $attrs = is_array($product->attributes) ? $product->attributes : [];
+            // Fresh sample so edits re-enter the pool (admin_label null until re-approved).
+            $this->recordTrainingSample($product, $user, $slug, $attrs, 'user');
+
             $this->notifications->createAndPush(
                 $user,
                 'Listing updated',
@@ -336,7 +342,8 @@ class ProductController extends Controller
         Product $product,
         User $user,
         string $categorySlug,
-        array $attributes
+        array $attributes,
+        string $source = 'user'
     ): void {
         $meta = is_array($product->ai_meta) ? $product->ai_meta : [];
         $draft = is_array($meta['draft'] ?? null) ? $meta['draft'] : null;
@@ -365,6 +372,8 @@ class ProductController extends Controller
             'model_version' => is_string($meta['model'] ?? null)
                 ? $meta['model']
                 : (is_string($draft['modelVersion'] ?? null) ? $draft['modelVersion'] : null),
+            'source' => $source !== '' ? $source : 'user',
+            'exported_at' => null,
         ]);
     }
 }

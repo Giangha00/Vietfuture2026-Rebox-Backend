@@ -25,6 +25,15 @@ return [
     'google_app_password' => preg_replace('/\s+/', '', (string) env('GOOGLE_APP_PASSWORD', '')),
     'ai' => [
         'url' => env('REBOX_AI_URL', 'http://127.0.0.1:8100'),
-        'timeout' => (int) env('REBOX_AI_TIMEOUT', 120),
+        'timeout' => (int) env('REBOX_AI_TIMEOUT', 180),
+        // Absolute or relative-to-backend path for versioned JSONL + image exports.
+        'dataset_dir' => env('REBOX_AI_DATASET_DIR', dirname(base_path()).'/rebox-ai/data'),
+        'rebox_ai_root' => env('REBOX_AI_ROOT', dirname(base_path()).'/rebox-ai'),
+        'export_min_approved' => (int) env('REBOX_AI_EXPORT_MIN_APPROVED', 20),
+        'export_val_ratio' => (float) env('REBOX_AI_EXPORT_VAL_RATIO', 0.2),
+        'auto_min_train' => (int) env('REBOX_AI_AUTO_MIN_TRAIN', 10),
+        'auto_min_category' => (float) env('REBOX_AI_AUTO_MIN_CATEGORY', 0.40),
+        'auto_min_condition' => (float) env('REBOX_AI_AUTO_MIN_CONDITION', 0.30),
+        'auto_eval_limit' => (int) env('REBOX_AI_AUTO_EVAL_LIMIT', 10),
     ],
 ];
