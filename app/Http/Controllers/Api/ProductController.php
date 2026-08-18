@@ -3,23 +3,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\AiTrainingSample;
-use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\AdminNotificationService;
 use App\Services\NotificationService;
-use App\Support\CategorySchemas;
-use App\Support\Money;
+use App\Services\ProductService;
 use App\Support\Serializers;
-use App\Support\Validators;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class ProductController extends Controller
 {
     public function __construct(
         protected NotificationService $notifications,
-        protected AdminNotificationService $adminNotifications,
+        protected ProductService $products,
     ) {}
 
     public function index()
@@ -70,53 +66,12 @@ class ProductController extends Controller
         /** @var User $user */
         $user = $request->attributes->get('authUser');
 
-        $title = trim((string) $request->input('title', ''));
-        $description = trim((string) $request->input('description', ''));
-        $condition = $request->input('condition', 'Good');
-        $categoryId = $request->input('category');
-        $images = $request->input('images', []);
-        $acceptsOffers = $request->boolean('acceptsOffers', true);
-
-        if (mb_strlen($title) < 3) {
-            return response()->json(['message' => 'Title must be at least 3 characters.'], 400);
-        }
-        if (mb_strlen($description) < 10) {
-            return response()->json(['message' => 'Description must be at least 10 characters.'], 400);
-        }
-        if (! in_array($condition, ['Like New', 'Good', 'Fair'], true)) {
-            return response()->json(['message' => 'Invalid condition.'], 400);
-        }
-
-        $category = Category::query()->find($categoryId);
-        if (! $category) {
-            return response()->json(['message' => 'Category not found.'], 400);
-        }
-
-        $pickup = Validators::normalizeAddress(
-            $request->input('pickupAddress') ?: ($user->pickup_address ?? [])
-        );
-        if ($pickup['line1'] === '' || $pickup['city'] === '') {
-            return response()->json([
-                'message' => 'Pickup address is required (street and city). Couriers will collect from this address when your item sells.',
-            ], 400);
-        }
-        if ($pickup['fullName'] === '') {
-            $pickup['fullName'] = (string) ($user->full_name ?? '');
-        }
-        if ($pickup['phone'] === '') {
-            $pickup['phone'] = (string) ($user->phone ?? '');
-        }
-        $user->pickup_address = $pickup;
-        $user->save();
+        $input = $request->all();
+        $input['acceptsOffers'] = $request->boolean('acceptsOffers', true);
 
         try {
-            $price = Money::assertProductPrice($request->input('price'));
-            $brand = CategorySchemas::assertBrand($request->input('brand'));
-            $productAttributes = CategorySchemas::assertAttributes(
-                $category->slug,
-                $request->input('attributes', [])
-            );
-        } catch (\InvalidArgumentException $e) {
+            $product = $this->products->create($user, $input);
+        } catch (InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }
 
@@ -170,90 +125,9 @@ class ProductController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        if ($product->moderation_status === 'rejected') {
-            return response()->json([
-                'message' => 'This product was rejected and cannot be edited. Please create a new listing to sell again.',
-            ], 400);
-        }
-
-        $onlyOffers = $request->keys() === ['acceptsOffers']
-            || (count($request->except(['acceptsOffers'])) === 0 && $request->has('acceptsOffers'));
-
-        if ($request->has('title')) {
-            $title = trim((string) $request->input('title'));
-            if (mb_strlen($title) < 3) {
-                return response()->json(['message' => 'Title must be at least 3 characters.'], 400);
-            }
-            $product->title = $title;
-        }
-        if ($request->has('description')) {
-            $description = trim((string) $request->input('description'));
-            if (mb_strlen($description) < 10) {
-                return response()->json(['message' => 'Description must be at least 10 characters.'], 400);
-            }
-            $product->description = $description;
-        }
-        if ($request->has('price')) {
-            try {
-                $product->price = Money::assertProductPrice($request->input('price'));
-            } catch (\InvalidArgumentException $e) {
-                return response()->json(['message' => $e->getMessage()], 400);
-            }
-        }
-        if ($request->has('condition')) {
-            $condition = $request->input('condition');
-            if (! in_array($condition, ['Like New', 'Good', 'Fair'], true)) {
-                return response()->json(['message' => 'Invalid condition.'], 400);
-            }
-            $product->condition = $condition;
-        }
-        if ($request->has('images')) {
-            $product->images = is_array($request->input('images')) ? $request->input('images') : [];
-        }
-        if ($request->has('category')) {
-            $category = Category::query()->find($request->input('category'));
-            if (! $category) {
-                return response()->json(['message' => 'Category not found.'], 400);
-            }
-            $product->category_id = $category->id;
-        }
+        $input = $request->all();
         if ($request->has('acceptsOffers')) {
-            $product->accepts_offers = $request->boolean('acceptsOffers');
-        }
-
-        $needsAttributeRefresh = $request->has('category')
-            || $request->has('attributes')
-            || $request->has('brand');
-
-        if ($needsAttributeRefresh && ! $onlyOffers) {
-            $product->loadMissing('category');
-            $slug = $product->category?->slug;
-            try {
-                if ($request->has('brand') || $product->brand === null || $product->brand === '') {
-                    $product->brand = CategorySchemas::assertBrand(
-                        $request->has('brand') ? $request->input('brand') : $product->brand
-                    );
-                }
-                if ($request->has('attributes') || $request->has('category')) {
-                    $product->attributes = CategorySchemas::assertAttributes(
-                        $slug,
-                        $request->has('attributes')
-                            ? $request->input('attributes', [])
-                            : ($product->attributes ?? [])
-                    );
-                }
-            } catch (\InvalidArgumentException $e) {
-                return response()->json(['message' => $e->getMessage()], 400);
-            }
-        }
-
-        if (! $onlyOffers) {
-            $product->moderation_status = 'pending';
-            $product->is_verified = false;
-            $product->rejection_reason = '';
-            $product->moderation_notes = null;
-            $product->moderated_at = null;
-            $product->moderated_by = null;
+            $input['acceptsOffers'] = $request->boolean('acceptsOffers');
         }
 
         $product->save();

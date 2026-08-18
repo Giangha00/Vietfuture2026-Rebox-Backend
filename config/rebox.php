@@ -36,4 +36,8 @@ return [
         'auto_min_condition' => (float) env('REBOX_AI_AUTO_MIN_CONDITION', 0.30),
         'auto_eval_limit' => (int) env('REBOX_AI_AUTO_EVAL_LIMIT', 10),
     ],
+    'upload' => [
+        'max_files' => 8,
+        'max_bytes' => (int) (1.5 * 1024 * 1024),
+    ],
 ];
