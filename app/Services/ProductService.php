@@ -203,6 +203,11 @@ class ProductService
         $product->save();
 
         if (! $onlyOffers) {
+            $product->loadMissing('category');
+            $slug = $product->category?->slug ?? 'keyboards';
+            $attrs = is_array($product->attributes) ? $product->attributes : [];
+            $this->recordTrainingSample($product, $user, $slug, $attrs);
+
             $this->notifications->createAndPush(
                 $user,
                 'Listing updated',
@@ -281,6 +286,8 @@ class ProductService
             'model_version' => is_string($meta['model'] ?? null)
                 ? $meta['model']
                 : (is_string($draft['modelVersion'] ?? null) ? $draft['modelVersion'] : null),
+            'source' => 'user',
+            'exported_at' => null,
         ]);
     }
 }
