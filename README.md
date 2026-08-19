@@ -31,6 +31,14 @@ php artisan storage:link
 php artisan serve --host=127.0.0.1 --port=5001
 ```
 
+Share with teammates on the same Wi‑Fi (bind all interfaces, then send the **LAN IP**, not `localhost`):
+
+```bash
+composer run serve:lan
+# frontend: npm run dev:lan
+# print URLs: ipconfig getifaddr en0
+```
+
 ## URLs
 
 | Surface | URL |

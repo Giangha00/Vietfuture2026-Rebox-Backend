@@ -20,7 +20,7 @@ class Serializers
             'email' => $user->email,
             'phone' => $user->phone,
             'role' => $user->role,
-            'avatarUrl' => $user->avatar_url,
+            'avatarUrl' => PublicBaseUrl::rewrite($user->avatar_url),
             'bio' => $user->bio ?? '',
             'emailVerified' => (bool) $user->email_verified,
             'emailVerifiedAt' => optional($user->email_verified_at)?->toISOString(),
@@ -74,8 +74,8 @@ class Serializers
             'fullName' => $user->full_name,
             'name' => $user->full_name,
             'email' => $user->email,
-            'avatarUrl' => $user->avatar_url,
-            'avatar' => $user->avatar_url,
+            'avatarUrl' => PublicBaseUrl::rewrite($user->avatar_url),
+            'avatar' => PublicBaseUrl::rewrite($user->avatar_url),
             'pickupCity' => $pickup['city'],
             'pickupDistrict' => $pickup['district'],
             'pickupLocation' => $locationParts !== [] ? implode(', ', $locationParts) : '',
@@ -98,7 +98,7 @@ class Serializers
             'condition' => $product->condition,
             'attributes' => $attributes,
             'attributeLabels' => CategorySchemas::labeledAttributes($category?->slug, $attributes),
-            'images' => $product->images ?? [],
+            'images' => PublicBaseUrl::rewriteList($product->images ?? []),
             'isVerified' => (bool) $product->is_verified,
             'moderationStatus' => $product->moderation_status,
             'rejectionReason' => $product->rejection_reason,
@@ -126,7 +126,7 @@ class Serializers
             'product' => $product ? array_merge(ApiId::dual($product->id), [
                 'title' => $product->title,
                 'price' => (float) $product->price,
-                'images' => $product->images ?? [],
+                'images' => PublicBaseUrl::rewriteList($product->images ?? []),
                 'status' => $product->status,
                 'moderationStatus' => $product->moderation_status,
             ]) : null,
@@ -160,7 +160,9 @@ class Serializers
                 'product' => $productId ? ApiId::dual($productId) : null,
                 'title' => $item['title'] ?? '',
                 'price' => (float) ($item['price'] ?? 0),
-                'image' => $item['image'] ?? '',
+                'image' => is_string($item['image'] ?? null)
+                    ? (PublicBaseUrl::rewrite($item['image']) ?? '')
+                    : '',
                 'seller' => $seller
                     ? self::sellerBrief($seller)
                     : (is_array($item['seller'] ?? null) ? $item['seller'] : null),
